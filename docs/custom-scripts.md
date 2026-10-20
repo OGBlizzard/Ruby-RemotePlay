@@ -24,7 +24,7 @@ function onBeforeDisconnect(api, event) {}
 
 The event object is a plain JavaScript object. `onBeforeConnect` receives `hostIndex` and `nickname`. `onSessionStarted` receives `nickname` and `connected`. `onBeforeDisconnect` receives `sleep`.
 
-Scripts do not receive shell execution, filesystem APIs, network APIs, controller injection, PSN tokens, or console credentials. Do not paste secrets into scripts. A script error is shown in the script manager and does not stop Remote Play.
+Scripts do not receive shell execution, filesystem APIs, network APIs, controller injection, PSN tokens, or console credentials. This is an API-restricted execution environment, not a security boundary against hostile code: only import scripts you trust, and avoid long-running or infinite loops because scripts run on the application thread. Do not paste secrets into scripts. A script error is shown in the script manager and does not stop Remote Play.
 
 ## Example: session notifier
 
