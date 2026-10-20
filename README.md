@@ -33,6 +33,10 @@ Enable Remote Play on the console, put the console in registration mode, discove
 
 For a stable experience, Sony recommends at least 5 Mbps broadband and 15 Mbps for a better Remote Play experience. The console and PC should use a reliable network connection.
 
+## Custom scripts
+
+Open **Settings → Config → Custom Scripts** to create, import, enable, disable, run, or delete JavaScript automation. Scripts can react to application start, connection attempts, session start, and disconnect events through a small local API for logging and notifications. They do not receive shell, filesystem, network, controller, or credential APIs. See [`docs/custom-scripts.md`](docs/custom-scripts.md) and the ready-to-import [`examples/session-notifier.js`](examples/session-notifier.js).
+
 ## License and attribution
 
 Ruby RemotePlay is distributed under the GNU Affero General Public License v3.0. See [`COPYING`](COPYING). It includes and modifies code from Chiaki-ng and retains the upstream notices and third-party licenses. If you distribute binaries or a network-served modified version, provide the corresponding source as required by the AGPL.

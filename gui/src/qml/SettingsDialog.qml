@@ -3032,6 +3032,13 @@ DialogView {
                             Material.roundedScale: Material.SmallScale
                         }
 
+                        C.Button {
+                            id: scriptsButton
+                            text: qsTr("Custom Scripts")
+                            onClicked: root.showScriptManagerDialog()
+                            Material.roundedScale: Material.SmallScale
+                        }
+
                     C.Button {
                         id: exportButton
                         text: qsTr("Export settings to file")

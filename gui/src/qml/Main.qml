@@ -226,6 +226,10 @@ Item {
         stack.push(profileDialogComponent)
     }
 
+    function showScriptManagerDialog() {
+        stack.push(scriptManagerDialogComponent)
+    }
+
     function showConsolePinDialog(consoleIndex) {
         stack.push(consolePinDialogComponent, {consoleIndex: consoleIndex});
     }
@@ -610,6 +614,11 @@ Item {
     Component {
         id: profileDialogComponent
         ProfileDialog { }
+    }
+
+    Component {
+        id: scriptManagerDialogComponent
+        ScriptManagerDialog { }
     }
 
     Component {

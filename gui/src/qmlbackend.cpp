@@ -284,6 +284,7 @@ QmlBackend::QmlBackend(Settings *settings, QmlMainWindow *window)
     : QObject(window)
     , settings(settings)
     , settings_qml(new QmlSettings(settings, this))
+    , scripts(new ScriptManager(this))
     , window(window)
 {
     qt_msg_handler = qInstallMessageHandler(msg_handler);
@@ -292,6 +293,7 @@ QmlBackend::QmlBackend(Settings *settings, QmlMainWindow *window)
     qmlRegisterSingletonInstance(uri, 1, 0, "Chiaki", this);
     qmlRegisterUncreatableType<QmlMainWindow>(uri, 1, 0, "ChiakiWindow", {});
     qmlRegisterUncreatableType<QmlSettings>(uri, 1, 0, "ChiakiSettings", {});
+    qmlRegisterUncreatableType<ScriptManager>(uri, 1, 0, "RubyScripts", {});
     qmlRegisterUncreatableType<StreamSession>(uri, 1, 0, "ChiakiSession", {});
 
     QObject *frame_obj = new QObject();
@@ -330,9 +332,16 @@ QmlBackend::QmlBackend(Settings *settings, QmlMainWindow *window)
     connect(settings, &Settings::HiddenHostsUpdated, this, &QmlBackend::hiddenHostsChanged);
     connect(settings, &Settings::ManualHostsUpdated, this, &QmlBackend::hostsChanged);
     connect(settings, &Settings::CurrentProfileChanged, this, &QmlBackend::profileChanged);
+    connect(this, &QmlBackend::sessionChanged, this, [this](StreamSession *active_session) {
+        QVariantMap event;
+        event.insert(QStringLiteral("nickname"), active_session ? session_info.nickname : QString());
+        event.insert(QStringLiteral("connected"), active_session && active_session->IsConnected());
+        scripts->runHook(QStringLiteral("onSessionStarted"), event);
+    });
     connect(&discovery_manager, &DiscoveryManager::HostsUpdated, this, &QmlBackend::updateDiscoveryHosts);
     discovery_manager.SetSettings(settings);
     setDiscoveryEnabled(true);
+    scripts->runHook(QStringLiteral("onAppStart"));
     connect(ControllerManager::GetInstance(), &ControllerManager::AvailableControllersUpdated, this, &QmlBackend::updateControllers);
     connect(settings_qml, &QmlSettings::allowJoystickBackgroundEventsChanged, this, &QmlBackend::setAllowJoystickBackgroundEvents);
     connect(window, &QmlMainWindow::activeChanged, this, &QmlBackend::setIsAppActive);
@@ -1516,6 +1525,10 @@ void QmlBackend::setWebEngineHints(QQuickWebEngineProfile *profile)
 
 void QmlBackend::connectToHost(int index, QString nickname)
 {
+    QVariantMap script_event;
+    script_event.insert(QStringLiteral("hostIndex"), index);
+    script_event.insert(QStringLiteral("nickname"), nickname);
+    scripts->runHook(QStringLiteral("onBeforeConnect"), script_event);
     window->setWindowAdjustable(false);
     auto server = displayServerAt(index);
     if (!server.valid)
@@ -1639,6 +1652,9 @@ void QmlBackend::connectToHost(int index, QString nickname)
 
 void QmlBackend::stopSession(bool sleep)
 {
+    QVariantMap script_event;
+    script_event.insert(QStringLiteral("sleep"), sleep);
+    scripts->runHook(QStringLiteral("onBeforeDisconnect"), script_event);
     if (!session)
         return;
 
